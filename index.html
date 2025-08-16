@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🤓 Démo infos navigateur (avec consentement)</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --card:#121821; --muted:#94a3b8; --text:#e2e8f0; --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444; --accent:#60a5fa;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 600px at 10% -10%, #0f172a 0, transparent 60%),
+                  radial-gradient(1200px 600px at 110% 10%, #111827 0, transparent 60%),
+                  var(--bg);
+      color:var(--text); line-height:1.5;
+    }
+    .wrap{max-width:960px; margin:48px auto; padding:0 16px}
+    .title{font-size:clamp(28px,3.2vw,40px); font-weight:800; letter-spacing:0.3px;}
+    .subtitle{color:var(--muted); margin-top:8px}
+    .grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px; margin-top:24px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); border:1px solid rgba(148,163,184,0.15);
+          padding:18px; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.2)}
+    .card h3{margin:0 0 8px 0; font-size:16px; font-weight:700; letter-spacing:0.2px}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:13px}
+    .row{display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px dashed rgba(148,163,184,0.2)}
+    .row:last-child{border-bottom:0}
+    .k{color:var(--muted)} .v{font-weight:600}
+    .badge{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; border:1px solid rgba(148,163,184,0.2)}
+    .btn{background:linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+         border:1px solid rgba(148,163,184,0.25); color:var(--text); padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:700}
+    .btn:hover{transform:translateY(-1px)}
+    .actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:16px}
+    .consent{margin:18px 0; padding:14px; border:1px dashed rgba(148,163,184,0.35); border-radius:12px; background:rgba(96,165,250,0.08)}
+    .note{font-size:13px; color:var(--muted)}
+    .ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+    footer{margin:36px 0; color:var(--muted); font-size:13px}
+    .copy{position:relative}
+    .copy textarea{width:100%; height:140px; border-radius:12px; border:1px solid rgba(148,163,184,0.25); background:rgba(2,6,23,0.5); color:var(--text); padding:12px}
+    .copy button{position:absolute; right:8px; bottom:8px}
+    .small{font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">Démo d'infos navigateur — respectueuse de la vie privée ✨</div>
+      <div class="subtitle">Montre <em>uniquement</em> les infos que votre navigateur partage, avec votre consentement pour les plus sensibles (géolocalisation, etc.).
+      Pas de collecte d'IP, pas de détection VPN, pas d'email forcé.</div>
+      <div class="consent">
+        <strong>⚠️ Rappel légal & éthique :</strong> si vous affichez cette page à d'autres personnes, informez-les et obtenez leur consentement. Évitez toute utilisation pour harceler, piéger ou « doxer » des gens.
+      </div>
+    </header>
+
+    <section class="grid" id="cards">
+      <div class="card" id="card-basic">
+        <h3>Basique</h3>
+        <div class="row"><span class="k">Langue préférée</span><span class="v mono" id="lang"></span></div>
+        <div class="row"><span class="k">Langues</span><span class="v mono" id="langs"></span></div>
+        <div class="row"><span class="k">Fuseau horaire</span><span class="v mono" id="tz"></span></div>
+        <div class="row"><span class="k">Plateforme</span><span class="v mono" id="platform"></span></div>
+        <div class="row"><span class="k">User Agent</span><span class="v mono" id="ua"></span></div>
+        <div class="row"><span class="k">En ligne</span><span class="v mono" id="online"></span></div>
+        <div class="row"><span class="k">Référent</span><span class="v mono" id="ref"></span></div>
+        <div class="row"><span class="k">Cookies activés</span><span class="v mono" id="cookies"></span></div>
+        <div class="row"><span class="k">Do Not Track</span><span class="v mono" id="dnt"></span></div>
+      </div>
+
+      <div class="card">
+        <h3>Écran & appareil</h3>
+        <div class="row"><span class="k">Taille fenêtre</span><span class="v mono" id="winsize"></span></div>
+        <div class="row"><span class="k">Taille écran</span><span class="v mono" id="screensize"></span></div>
+        <div class="row"><span class="k">DPR</span><span class="v mono" id="dpr"></span></div>
+        <div class="row"><span class="k">Processeurs logiques</span><span class="v mono" id="cores"></span></div>
+        <div class="row"><span class="k">Mémoire (approx.)</span><span class="v mono" id="memory"></span></div>
+        <div class="row"><span class="k">Tactile</span><span class="v mono" id="touch"></span></div>
+        <div class="row"><span class="k">Profondeur couleurs</span><span class="v mono" id="depth"></span></div>
+      </div>
+
+      <div class="card">
+        <h3>Position (avec consentement)</h3>
+        <div id="geo" class="note">Aucune donnée de position n'a été demandée.</div>
+        <div class="actions">
+          <button class="btn" id="btn-geo">Demander la position</button>
+        </div>
+        <div class="note small">La géolocalisation nécessite votre autorisation et peut être approximative.</div>
+      </div>
+
+      <div class="card">
+        <h3>Clavier (si supporté)</h3>
+        <div id="kbd" class="note">Disposition non lue.</div>
+        <div class="actions">
+          <button class="btn" id="btn-kbd">Essayer de lire la disposition</button>
+        </div>
+        <div class="note small">La Keyboard API n'est pas dispo partout. Aucune touche n'est enregistrée.</div>
+      </div>
+
+      <div class="card">
+        <h3>Batterie (si supporté)</h3>
+        <div id="bat" class="note">Non testé.</div>
+        <div class="actions">
+          <button class="btn" id="btn-bat">Tester l'état de la batterie</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Infos que cette page <em>ne collecte pas</em></h3>
+        <ul class="note">
+          <li>Adresse IP (nécessiterait un service tiers / serveur + consentement)</li>
+          <li>Détection VPN (pas fiable côté client, à éviter)</li>
+          <li>Adresse email (sauf si l'utilisateur la saisit lui‑même)</li>
+        </ul>
+        <div class="copy">
+          <label for="email" class="small">Vous voulez afficher un email de <u>démo</u> ? (saisi volontaire)</label>
+          <textarea id="email" placeholder="Entrez un email de test, ex. demo@example.com"></textarea>
+          <button class="btn" id="btn-email">Afficher en bas</button>
+        </div>
+        <div id="email-out" class="note" style="margin-top:8px"></div>
+      </div>
+    </section>
+
+    <footer>
+      Fait pour une démonstration pédagogique. Pour publier : mettez ce fichier sur GitHub et activez GitHub Pages. ✌️
+    </footer>
+  </div>
+
+  <script>
+    const $ = sel => document.querySelector(sel);
+    const set = (id, val) => { const el = $(id); if(el) el.textContent = val; };
+
+    // Basique
+    set('#lang', navigator.language || 'inconnu');
+    set('#langs', (navigator.languages && navigator.languages.join(', ')) || navigator.language || 'inconnu');
+    try { set('#tz', Intl.DateTimeFormat().resolvedOptions().timeZone || 'inconnu'); } catch(e){ set('#tz','inconnu'); }
+    set('#platform', navigator.platform || navigator.userAgentData?.platform || 'inconnu');
+    set('#ua', navigator.userAgent || 'inconnu');
+    set('#online', navigator.onLine ? '✅ en ligne' : '❌ hors ligne');
+    set('#ref', document.referrer || '—');
+    set('#cookies', navigator.cookieEnabled ? 'Oui' : 'Non');
+    set('#dnt', (navigator.doNotTrack=="1"||window.doNotTrack=="1"||navigator.msDoNotTrack=="1") ? 'Activé' : 'Non / inconnu');
+
+    // Écran / appareil
+    function updateSizes(){
+      set('#winsize', `${window.innerWidth}×${window.innerHeight}`);
+      set('#screensize', `${screen.width}×${screen.height}`);
+    }
+    updateSizes();
+    window.addEventListener('resize', updateSizes);
+    set('#dpr', window.devicePixelRatio || 1);
+    set('#cores', (navigator.hardwareConcurrency || 'inconnu'));
+    set('#memory', (navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'inconnu'));
+    set('#touch', (navigator.maxTouchPoints ? `${navigator.maxTouchPoints} point(s)` : '0'));
+    set('#depth', screen.colorDepth ? `${screen.colorDepth}-bit` : 'inconnu');
+
+    // Géoloc à la demande
+    $('#btn-geo').addEventListener('click', () => {
+      const out = $('#geo');
+      if(!('geolocation' in navigator)) { out.innerHTML = '<span class="bad">Géolocalisation non supportée.</span>'; return; }
+      out.textContent = 'Demande d\'autorisation en cours…';
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude, longitude, accuracy } = pos.coords;
+        const t = new Date(pos.timestamp).toLocaleString();
+        out.innerHTML = `<div class="badge">📍 <strong>Latitude:</strong> <span class="mono">${latitude.toFixed(6)}</span></div>
+                         <div class="badge" style="margin-top:8px">📍 <strong>Longitude:</strong> <span class="mono">${longitude.toFixed(6)}</span></div>
+                         <div class="note" style="margin-top:8px">Précision ~ <span class="mono">${Math.round(accuracy)} m</span> — ${t}</div>`;
+      }, err => {
+        out.innerHTML = `<span class="warn">Impossible d'obtenir la position (${err.code}): ${err.message}</span>`;
+      }, { enableHighAccuracy:true, timeout:10000, maximumAge:0 });
+    });
+
+    // Keyboard API (expérimental et optionnel)
+    $('#btn-kbd').addEventListener('click', async () => {
+      const out = $('#kbd');
+      try{
+        if(!('keyboard' in navigator) || !navigator.keyboard.getLayoutMap){
+          out.innerHTML = '<span class="warn">API clavier non supportée dans ce navigateur.</span>';
+          return;
+        }
+        const map = await navigator.keyboard.getLayoutMap();
+        const sampleKeys = ['KeyA','KeyZ','KeyQ','KeyW','Comma','Period'];
+        const entries = sampleKeys.map(k => `${k} → <span class="mono">${map.get(k) || 'inconnu'}</span>`).join('<br/>');
+        out.innerHTML = entries + '<div class="note" style="margin-top:8px">Ceci ne lit pas ce que vous tapez, seulement le <em>mapping</em> des touches.</div>';
+      }catch(e){
+        out.innerHTML = `<span class="bad">Erreur: ${e.message}</span>`;
+      }
+    });
+
+    // Batterie (si supporté)
+    $('#btn-bat').addEventListener('click', async () => {
+      const out = $('#bat');
+      try{
+        if(!('getBattery' in navigator)) { out.innerHTML = '<span class="warn">API batterie non supportée.</span>'; return; }
+        const b = await navigator.getBattery();
+        const pct = Math.round(b.level * 100);
+        out.innerHTML = `${b.charging ? '⚡️ En charge' : '🔋 Sur batterie'} — ${pct}%`;
+      }catch(e){ out.innerHTML = `<span class="bad">Erreur: ${e.message}</span>`; }
+    });
+
+    // Email volontaire (démo)
+    $('#btn-email').addEventListener('click', () => {
+      const v = $('#email').value.trim();
+      if(!v) { $('#email-out').textContent = 'Aucun email fourni.'; return; }
+      const safe = v.replace(/[<>]/g, '');
+      $('#email-out').innerHTML = `Email saisi volontairement: <span class="mono">${safe}</span>`;
+    });
+  </script>
+</body>
+</html>
